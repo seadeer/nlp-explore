@@ -35,7 +35,7 @@ class UnicodeWriter:
             self.writerow(row)
 
 
-def get_commits(user, repo, api_username, api_password):
+def get_commits(user, repo, api_username, api_password, request_time_log_filename):
     """ Get commit SHA's and messages from a Github repository.
 
         Arguments:
@@ -48,6 +48,8 @@ def get_commits(user, repo, api_username, api_password):
             List of tuples of the form (user, repo, sha, message)
 
     """
+    request_time_log = open(request_time_log_filename, 'ab')
+
     start_time = time.time()
     sesh = requests.Session()
     sesh.auth = (api_username, api_password)
@@ -56,11 +58,11 @@ def get_commits(user, repo, api_username, api_password):
     req = sesh.get(url)
     response = req.json()
     messages = parse_response(response)
+
     elapsed_time = time.time() - start_time
     x_rate_info = get_XRateLimitRemaining(req)
-    with open('timelog.txt', 'ab') as log_file:
-        log_file.write('{time}\n'.format(time=elapsed_time))
-        log_file.close()
+
+    request_time_log.write('{time}\n'.format(time=elapsed_time))
 
     # Go through all the pages of commits data in the repository.
     while True:
@@ -77,13 +79,13 @@ def get_commits(user, repo, api_username, api_password):
             else:
                 break
             elapsed_time = time.time() - start_time
-            with open('timelog.txt', 'ab') as log_file:
-                log_file.write('{time}\n'.format(time=elapsed_time))
+            request_time_log.write('{time}\n'.format(time=elapsed_time))
         else:
             readable_time = datetime.datetime.fromtimestamp((x_rate_info[1]).strftime('%Y-%m-%d %H:%M:%S'))
             pause.until(x_rate_info[1])
             print "Paused until {time}".format(time=readable_time)
 
+    request_time_log.close()
     return [("{}/{}".format(user, repo), sha, message) for (sha, message) in messages]
 
 
@@ -133,6 +135,7 @@ def main():
     repos = load_repo_list('repo_list.csv')
     config = load_github_config('github_config.json')
     path = "data"
+    request_time_log_filename = "request_timing_data.log"
 
     for (user_name, repo_name) in repos:    
         csv_filename = user_name + '_' + repo_name
@@ -140,7 +143,7 @@ def main():
         # only download Github data if destination file does not exist
         if os.path.isfile(os.path.join(path, csv_filename)) == False:
 
-            messages = get_commits(user_name, repo_name, config['username'], config['password'])
+            messages = get_commits(user_name, repo_name, config['username'], config['password'], request_time_log_filename)
             csv_filename = os.path.join(path, csv_filename + ".csv")
             write_csv(messages, csv_filename)
             message_count = len(messages)
