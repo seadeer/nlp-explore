@@ -61,6 +61,7 @@ def get_commits(user, repo, api_username, api_password, request_time_log_filenam
 
     elapsed_time = time.time() - start_time
     x_rate_info = get_XRateLimitRemaining(req)
+    print "Requests remaining: {x}".format(x=x_rate_info[0])
 
     request_time_log.write('{time}\n'.format(time=elapsed_time))
 
@@ -68,12 +69,13 @@ def get_commits(user, repo, api_username, api_password, request_time_log_filenam
     while True:
         # Check the Github X-Rate limit and wait 
         # if the number of get requests is reaching it.
+        x_rate_info = get_XRateLimitRemaining(req)
+        print "Requests remaining: {x}".format(x=x_rate_info[0])
         if x_rate_info[0] > 100:
             start_time = time.time()
             if 'next' in req.links.keys():
                 url = req.links['next']['url']
                 print "Getting link: {url}".format(url=url)
-                print "Requests remaining: {x}".format(x=x_rate_info[0])
                 req = sesh.get(url)
                 messages.extend(parse_response(req.json()))
             else:
