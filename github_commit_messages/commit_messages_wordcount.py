@@ -38,7 +38,7 @@ def get_word_count_all(path):
     """
     for csv_file in os.listdir(path):
         tokens = get_word_count(csv_file)
-        filename = 'wordcount_{filename}'.format(filename=csv_file)
+        filename = 'wordcount_{filename}.csv'.format(filename=csv_file)
         with open(os.path.join(path, filename), 'wb') as count_file:
             count_file.writelines(str(token)+'\n' for token in tokens)
 
