@@ -37,6 +37,8 @@ def get_word_count_all(path):
     and saves word count for each file.
     """
     for csv_file in os.listdir(path):
+        if not csv_file.endswith('.csv') or csv_file.startswith('wordcount'):
+            continue
         tokens = get_word_count(csv_file)
         filename = 'wordcount_{filename}'.format(filename=csv_file)
         with open(os.path.join(path, filename), 'wb') as count_file:
