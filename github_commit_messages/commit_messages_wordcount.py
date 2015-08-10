@@ -16,8 +16,6 @@ def import_csv(filename):
     messages_list = []
     reader = csv.reader(open(os.path.join(path, filename), 'rb'))
     for row in reader:
-        print filename
-        print row
         messages_list.append(row[2])
     return messages_list
 
@@ -39,6 +37,7 @@ def get_word_count_all(path):
     for csv_file in os.listdir(path):
         if not csv_file.endswith('.csv') or csv_file.startswith('wordcount'):
             continue
+        print "Processing file {}".format(csv_file)
         tokens = get_word_count(csv_file)
         filename = 'wordcount_{filename}'.format(filename=csv_file)
         with open(os.path.join(path, filename), 'wb') as count_file:
