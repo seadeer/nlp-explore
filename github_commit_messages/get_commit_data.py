@@ -21,7 +21,6 @@ class UnicodeWriter:
         self.encoder = codecs.getincrementalencoder(encoding)()
 
     def writerow(self, row):
-        print row
         self.writer.writerow([s.encode("utf-8") for s in row])
         # Fetch UTF-8 output from the queue ...
         data = self.queue.getvalue()
@@ -120,7 +119,6 @@ def load_github_config(filename):
     with open(filename, 'r') as config_file:
         config = json.load(config_file)
 
-    print config
     return config
 
 
