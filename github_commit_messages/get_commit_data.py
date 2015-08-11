@@ -138,13 +138,12 @@ def main():
     request_time_log_filename = "request_timing_data.log"
 
     for (user_name, repo_name) in repos:    
-        csv_filename = user_name + '_' + repo_name
+        csv_filename = os.path.join(path, user_name + '_' + repo_name + '.csv')
 
         # only download Github data if destination file does not exist
         if os.path.isfile(os.path.join(path, csv_filename)) == False:
-
+            print "Accessing {user_name}/{repo_name}".format(**locals())
             messages = get_commits(user_name, repo_name, config['username'], config['password'], request_time_log_filename)
-            csv_filename = os.path.join(path, csv_filename + ".csv")
             write_csv(messages, csv_filename)
             message_count = len(messages)
             print "Downloaded {user_name}/{repo_name} to {csv_filename}, {message_count} messages added.".format(**locals())
@@ -152,4 +151,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
